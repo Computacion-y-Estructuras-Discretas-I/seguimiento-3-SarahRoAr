@@ -43,11 +43,11 @@ public class Main {
                         numeros[i] = Integer.parseInt(partes[i]);
                     }
 
-                    encontrarParesConSuma(numeros, objetivo);
+                    encontrarParesConSuma(numeros, objetivo); 
                     break;
 
                 case 3:
-                    System.out.println("Chao");
+                    System.out.println("Chaito");
                     sc.close();
                     System.exit(0);
                     break;
@@ -64,8 +64,35 @@ public class Main {
      * @return true si esta balanceada, false si no
      */
     public boolean verificarBalanceo(String s) {
-        // TODO: completar 
-        return false;
+        PilaGenerica<Character> pila = new PilaGenerica<>(s.length());
+
+        if (pila.getSize() == 0){
+            return true;
+        }
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+
+            if (c == '(' || c == '{' || c == '[') {
+                pila.Push(c);
+                if (pila.getTop() == 0) {
+                    return false;
+                }
+                
+            } else if (c == ')' || c == '}' || c == ']') {
+                if (pila.getTop() == 0) {
+                    return false;
+                }
+                char topChar;
+                topChar = pila.Pop();
+                if ((c == ')' && topChar != '(') ||
+                    (c == '}' && topChar != '{') ||
+                    (c == ']' && topChar != '[')) {
+                    return false;
+                }
+                
+            }
+        }
+        return pila.getTop() == 0;
     }
 
     /**
@@ -74,7 +101,38 @@ public class Main {
      * @param objetivo suma objetivo
      */
     public void encontrarParesConSuma(int[] numeros, int objetivo) {
-        // TODO: completar
+
+        try {
+            int n = numeros.length;
+            TablasHash tabla = new TablasHash(n);
+
+            for (int x : numeros){
+                tabla.insert(Math.abs(x), x);
+            }
+
+
+            for (int x : numeros){
+                int complemento = objetivo - x;
+                if (x != complemento){
+                    if (tabla.search(Math.abs(complemento), complemento)) {
+                        System.out.println("(" + x + ", " + complemento + ")");
+                        tabla.delete(Math.abs(x), x);
+                        tabla.delete(Math.abs(complemento), complemento);
+                        if (tabla.search(Math.abs(x), x) || tabla.search(Math.abs(complemento), complemento)) {
+                            tabla.delete(Math.abs(x), x);
+                            tabla.delete(Math.abs(complemento), complemento);
+                        }
+                    }
+                }else{
+                    System.out.println("Ningún par encontrado");
+                }
+
+            }
+        } catch (Exception e) {
+            System.out.println("Error con TablasHash: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
     }
 
     public static void main(String[] args) throws Exception {
